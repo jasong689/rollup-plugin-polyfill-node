@@ -28,9 +28,9 @@ function normalizeArray(parts, allowAboveRoot) {
   var up = 0;
   for (var i = parts.length - 1; i >= 0; i--) {
     var last = parts[i];
-    if (last === '.') {
+    if (last === ".") {
       parts.splice(i, 1);
-    } else if (last === '..') {
+    } else if (last === "..") {
       parts.splice(i, 1);
       up++;
     } else if (up) {
@@ -42,7 +42,7 @@ function normalizeArray(parts, allowAboveRoot) {
   // if the path is allowed to go above the root, restore leading ..s
   if (allowAboveRoot) {
     for (; up--; up) {
-      parts.unshift('..');
+      parts.unshift("..");
     }
   }
 
@@ -52,79 +52,86 @@ function normalizeArray(parts, allowAboveRoot) {
 // Split a filename into [root, dir, basename, ext], unix version
 // 'root' is just a slash, or nothing.
 var splitPathRe =
-    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
-var splitPath = function(filename) {
+  /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+var splitPath = function (filename) {
   return splitPathRe.exec(filename).slice(1);
 };
 
 // path.resolve([from ...], to)
 // posix version
 export function resolve() {
-  var resolvedPath = '',
-      resolvedAbsolute = false;
+  var resolvedPath = "",
+    resolvedAbsolute = false;
 
   for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
-    var path = (i >= 0) ? arguments[i] : '/';
+    var path = i >= 0 ? arguments[i] : "/";
 
     // Skip empty and invalid entries
-    if (typeof path !== 'string') {
-      throw new TypeError('Arguments to path.resolve must be strings');
+    if (typeof path !== "string") {
+      throw new TypeError("Arguments to path.resolve must be strings");
     } else if (!path) {
       continue;
     }
 
-    resolvedPath = path + '/' + resolvedPath;
-    resolvedAbsolute = path.charAt(0) === '/';
+    resolvedPath = path + "/" + resolvedPath;
+    resolvedAbsolute = path.charAt(0) === "/";
   }
 
   // At this point the path should be resolved to a full absolute path, but
   // handle relative paths to be safe (might happen when process.cwd() fails)
 
   // Normalize the path
-  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
-    return !!p;
-  }), !resolvedAbsolute).join('/');
+  resolvedPath = normalizeArray(
+    filter(resolvedPath.split("/"), function (p) {
+      return !!p;
+    }),
+    !resolvedAbsolute
+  ).join("/");
 
-  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
-};
+  return (resolvedAbsolute ? "/" : "") + resolvedPath || ".";
+}
 
 // path.normalize(path)
 // posix version
 export function normalize(path) {
   var isPathAbsolute = isAbsolute(path),
-      trailingSlash = substr(path, -1) === '/';
+    trailingSlash = substr(path, -1) === "/";
 
   // Normalize the path
-  path = normalizeArray(filter(path.split('/'), function(p) {
-    return !!p;
-  }), !isPathAbsolute).join('/');
+  path = normalizeArray(
+    filter(path.split("/"), function (p) {
+      return !!p;
+    }),
+    !isPathAbsolute
+  ).join("/");
 
   if (!path && !isPathAbsolute) {
-    path = '.';
+    path = ".";
   }
   if (path && trailingSlash) {
-    path += '/';
+    path += "/";
   }
 
-  return (isPathAbsolute ? '/' : '') + path;
-};
+  return (isPathAbsolute ? "/" : "") + path;
+}
 
 // posix version
 export function isAbsolute(path) {
-  return path.charAt(0) === '/';
+  return path.charAt(0) === "/";
 }
 
 // posix version
 export function join() {
   var paths = Array.prototype.slice.call(arguments, 0);
-  return normalize(filter(paths, function(p, index) {
-    if (typeof p !== 'string') {
-      throw new TypeError('Arguments to path.join must be strings');
-    }
-    return p;
-  }).join('/'));
+  return normalize(
+    filter(paths, function (p, index) {
+      if (typeof p !== "string") {
+        throw new TypeError("Arguments to path.join must be strings");
+      }
+      return p;
+    }).join("/")
+  );
 }
-
 
 // path.relative(from, to)
 // posix version
@@ -135,20 +142,20 @@ export function relative(from, to) {
   function trim(arr) {
     var start = 0;
     for (; start < arr.length; start++) {
-      if (arr[start] !== '') break;
+      if (arr[start] !== "") break;
     }
 
     var end = arr.length - 1;
     for (; end >= 0; end--) {
-      if (arr[end] !== '') break;
+      if (arr[end] !== "") break;
     }
 
     if (start > end) return [];
     return arr.slice(start, end - start + 1);
   }
 
-  var fromParts = trim(from.split('/'));
-  var toParts = trim(to.split('/'));
+  var fromParts = trim(from.split("/"));
+  var toParts = trim(to.split("/"));
 
   var length = Math.min(fromParts.length, toParts.length);
   var samePartsLength = length;
@@ -161,25 +168,25 @@ export function relative(from, to) {
 
   var outputParts = [];
   for (var i = samePartsLength; i < fromParts.length; i++) {
-    outputParts.push('..');
+    outputParts.push("..");
   }
 
   outputParts = outputParts.concat(toParts.slice(samePartsLength));
 
-  return outputParts.join('/');
+  return outputParts.join("/");
 }
 
-export var sep = '/';
-export var delimiter = ':';
+export var sep = "/";
+export var delimiter = ":";
 
 export function dirname(path) {
   var result = splitPath(path),
-      root = result[0],
-      dir = result[1];
+    root = result[0],
+    dir = result[1];
 
   if (!root && !dir) {
     // No dirname whatsoever
-    return '.';
+    return ".";
   }
 
   if (dir) {
@@ -199,10 +206,14 @@ export function basename(path, ext) {
   return f;
 }
 
-
 export function extname(path) {
   return splitPath(path)[3];
 }
+
+export const posix = {
+  dirname: dirname,
+};
+
 export default {
   extname: extname,
   basename: basename,
@@ -213,22 +224,27 @@ export default {
   join: join,
   isAbsolute: isAbsolute,
   normalize: normalize,
-  resolve: resolve
+  resolve: resolve,
+  posix: {
+    dirname: dirname,
+  },
 };
-function filter (xs, f) {
-    if (xs.filter) return xs.filter(f);
-    var res = [];
-    for (var i = 0; i < xs.length; i++) {
-        if (f(xs[i], i, xs)) res.push(xs[i]);
-    }
-    return res;
+function filter(xs, f) {
+  if (xs.filter) return xs.filter(f);
+  var res = [];
+  for (var i = 0; i < xs.length; i++) {
+    if (f(xs[i], i, xs)) res.push(xs[i]);
+  }
+  return res;
 }
 
 // String.prototype.substr - negative index don't work in IE8
-var substr = 'ab'.substr(-1) === 'b' ?
-    function (str, start, len) { return str.substr(start, len) } :
-    function (str, start, len) {
+var substr =
+  "ab".substr(-1) === "b"
+    ? function (str, start, len) {
+        return str.substr(start, len);
+      }
+    : function (str, start, len) {
         if (start < 0) start = str.length + start;
         return str.substr(start, len);
-    }
-;
+      };
